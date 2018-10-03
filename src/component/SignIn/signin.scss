@@ -1,0 +1,30 @@
+.tableContainer {
+  padding: 0px 20px 20px 20px;
+}
+
+.h1-text-center {
+  text-align: center;
+  padding: 20px;
+}
+
+.adminSelect {
+  text-align: center;
+  select {
+    outline : none;
+  }
+}
+
+table, td, th {
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 70px;
+}
+
+th, td {
+  padding: 15px;
+}
