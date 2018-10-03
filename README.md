@@ -1,1 +1,1 @@
-#Concours Schedule App#
+<h2>Concours Schedule App</h2>
