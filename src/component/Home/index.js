@@ -229,7 +229,7 @@ class Home extends Component {
                 isEdit: false
               })
             }}
-              className="button">Form</Button>
+              className="button">Add</Button>
           </div>
           {this.state.home &&
             <div className="tableContainer">
