@@ -83,7 +83,7 @@ class SignIn extends Component {
               </tr>
               {
                 this.props.events !== '' && this.props.events.map((event, index) => {
-                  if (this.state.selectEvent === '' || this.state.selectEvent === event.sports) {
+                  if (this.state.selectEvent === '' || event.sports.includes(this.state.selectEvent)) {
                     return <tr key={index}>
                       <td>{event.sports}</td>
                       <td>{event.teams}</td>
