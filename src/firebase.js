@@ -1,13 +1,13 @@
 import * as firebase from "firebase"
 
 var config = {
-  apiKey: "AIzaSyCGsuWD_lsEZjZ-I6nZRBphEe3Nm6IfGtI",
-  authDomain: "concours18-f3b7a.firebaseapp.com",
-  databaseURL: "https://concours18-f3b7a.firebaseio.com",
-  projectId: "concours18-f3b7a",
-  storageBucket: "concours18-f3b7a.appspot.com",
-  messagingSenderId: "261845660297"
+  apiKey: "AIzaSyCcNpyiARuOzGMi0zDOmlxz9prrF8VX-J8",
+  authDomain: "spmproject-96271.firebaseapp.com",
+  databaseURL: "https://spmproject-96271.firebaseio.com",
+  projectId: "spmproject-96271",
+  storageBucket: "spmproject-96271.appspot.com",
+  messagingSenderId: "433083141867"
 };
 firebase.initializeApp(config);
 
-export const databaseRef = firebase.database().ref().child("events");
+export const databaseRef = firebase;

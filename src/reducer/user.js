@@ -1,6 +1,10 @@
 const initialState = {
+  user: '',
   loading: false,
-  events: ''
+  error: '',
+  teams: [],
+  users: [],
+  currrentTeam: ''
 }
 
 export default (state = initialState, action) => {
@@ -17,10 +21,36 @@ export default (state = initialState, action) => {
         loading: true
       }
 
-    case 'ADD_EVENTS':
+    case 'ADD_USER':
       return {
         ...state,
-        events: action.events
+        user: action.user,
+        users: action.users
+      }
+
+    case 'LOG_OUT':
+      return {
+        ...state,
+        user: '',
+        teams: []
+      }
+
+    case 'ERROR':
+      return {
+        ...state,
+        error: action.error
+      }
+
+    case 'ERROR_CLEAR':
+      return {
+        ...state,
+        error: ''
+      }
+
+    case 'ADD_TEAM':
+      return {
+        ...state,
+        teams: action.teams
       }
 
     default:

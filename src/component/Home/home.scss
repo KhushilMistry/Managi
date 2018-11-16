@@ -1,36 +1,56 @@
-.formContainer {
+.navbarCustom{
+  background: #2d2d2d;
+  height: 7vh;
+  border-radius: 0px !important;
+  margin-bottom: 0px !important;
+  text-decoration: none;
+  &:hover {
+    text-decoration: none; 
+  }
+}
+
+.horizontalNav {
+  float:left;
+  width: 5%;
+  height: 93vh;
+  background-color: #f5f5f5;
+
+  .horizontalLink {
+    text-align: center;
+    font-size: 12px;
+    padding: 20px;
+
+    &:hover {
+      text-decoration: none; 
+    }
+
+  }
+
+  .iconCenter{
+    font-size: 16px;
+    display: block;
+    margin: 10px auto;
+  }
+}
+
+.horizontalContainer {
+  float:left;
+  width: 95%;
+  height: 93vh;
   padding: 20px;
+  overflow: scroll;
 }
 
-.tableContainer {
-  padding: 20px;
+.navbarLink{
+  font-size: 14px !important;
 }
 
-.buttonContainer {
-  padding: 20px;
+.navbarHeader{
+  font-size: 20px !important;
+  color: #00d8ff !important;
+  margin-left: -26px !important;
 }
 
-.button {
-  margin: 0px 10px;
-}
-
-.labelName {
-  margin: 10px 0px;
-  width: 100px;
-  display: inline-block;
-}
-
-input{
-  width: 200px;
-  outline: none;
-  padding: 5px;
-}
-
-.error {
-  margin-top: 10px; 
-  color : red;
-}
-
-.tableButton {
-  margin: 0px 10px;
+.divContainer{
+  display: inline;
 }

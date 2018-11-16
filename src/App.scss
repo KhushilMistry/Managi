@@ -1,1 +1,73 @@
-@import '~antd/dist/antd.css';
+body{
+  font-family: Arial, Helvetica, sans-serif;
+  margin : 0;
+  padding: 0;
+  font-size: 18px;
+  min-width : 480px;
+}
+
+.login-box {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  border: solid 1px #acacac;
+  border-radius: 10px;
+}
+
+
+
+.login-input {
+  font-size: 18px;
+  padding: 10px;
+  margin: 10px;
+  outline: none;
+  width: 350px;
+  border: none;
+  border: solid 1px #bbbbbb;
+  border-radius: 5px;
+}
+
+.error-message {
+  text-align : center;
+  color: red;
+  font-size : 14px;
+}
+
+.login-heading {
+  color: #414141;
+  font-size: 26px;
+  text-align: center;
+}
+
+.login-button {
+  cursor: pointer;
+  outline: none;
+  font-size: 16px;
+  display: block;
+  margin: 20px auto 10px auto;
+  padding: 10px;
+  border: none;
+  border: solid 1px #088837;
+  border-radius: 5px;
+  color : white;
+  background-color: #29b35b;
+}
+
+.login-text {
+  color: #626262;
+  font-size : 14px;
+  text-align: center;
+}
+
+.login-link{
+  color:  #4691f6;
+  text-decoration: none;
+}
+
+.logo-image {
+  display: block;
+  margin: auto;
+  width: 60px;
+}

@@ -1,0 +1,32 @@
+.bulletText{
+  font-weight: bold;
+}
+
+.teamTile {
+  border: 1px solid #337ab7;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.tileRow {
+  padding: 15px !important;
+}
+
+.teamDetails {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.teamLink{
+  &:hover{
+    text-decoration: none !important;
+  }
+}
+
+.errorMsg {
+  color: red;
+  text-align: center;
+}

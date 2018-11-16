@@ -1,1 +1,1 @@
-<h2>Concours Schedule App</h2>
+<h2>Software Managment Tool</h2>
