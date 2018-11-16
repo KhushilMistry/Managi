@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { Button, Row, Col, Modal } from 'react-bootstrap'
+import { Button, Modal } from 'react-bootstrap'
 import './detail.scss'
 import { addTeam } from '../../actions'
 var _ = require('lodash');
@@ -67,7 +67,6 @@ class Detail extends Component {
   }
 
   render() {
-    let i = -1;
     return (
       <div>
         <h3>Details</h3>
@@ -78,21 +77,21 @@ class Detail extends Component {
         <p><span className="bulletText">Organization</span> : {this.props.user.Organization}</p>
         <h3>Teams</h3>
         <hr />
-        <Button bsStyle="primary" onClick={this.showModal}>Add Team</Button>
-        <Row className="tileRow">
+        <Button bsStyle="primary" onClick={this.showModal} className="addTeamButton">Add Team</Button>
+        <div>
           {
             this.props.user.teams && this.props.user.teams.lengh !== 0 && _.map(this.props.teams, (team, key) => {
-            if (this.props.user.teams.includes(team.name)) {
-              i++;
-              return <Col xs={3} xsOffset={i === 0 ? 0 : 1} className="teamTile">
-            <Link to={`/dashboard/${team.name}`} className="teamLink">
-              <p><span className="bulletText">Name</span> : {team.name}</p>
-              <p className="teamDetails"><span className="bulletText">Details</span> : {team.details}</p>
-            </Link>
-          </Col>
+              if (this.props.user.teams.includes(team.name)) {
+                return <div className="teamTile" key={key}>
+                  <Link to={`/dashboard/${team.name}`} className="teamLink">
+                    <p><span className="bulletText">Name</span> : {team.name}</p>
+                    <p className="teamDetails"><span className="bulletText">Details</span> : {team.details}</p>
+                  </Link>
+                </div>
+              }
+            })
           }
-        })}
-        </Row>
+        </div>
         <Modal show={this.state.show} onHide={this.handleClose}>
           <Modal.Header closeButton>
             <Modal.Title>Add Team</Modal.Title>
@@ -121,7 +120,8 @@ class Detail extends Component {
 const mapStateToProps = ({ loginStates }) => ({
   user: loginStates.user,
   loading: loginStates.loading,
-  teams: loginStates.teams
+  teams: loginStates.teams,
+  currrentTeam: loginStates.currrentTeam
 })
 
 const mapDispatchToProps = dispatch => bindActionCreators({

@@ -5,3 +5,37 @@
 .teamNameHeading{
   margin-bottom: 10px;
 }
+
+.detailsText {
+  margin: 20px 0px;
+}
+
+.bulletText{
+  font-weight: bold;
+}
+
+.teamTile {
+  border: 1px solid #337ab7;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 20px;
+  width: 30%;
+  float: left;
+  margin-right: 40px;
+}
+
+.teamDetails {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.teamRow {
+  margin: 0;
+}
+
+.userButtons{
+  margin: 0px 10px 20px 0px;
+}

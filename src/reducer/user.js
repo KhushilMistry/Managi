@@ -53,6 +53,12 @@ export default (state = initialState, action) => {
         teams: action.teams
       }
 
+    case 'ADD_CURRENT_TEAM':
+      return {
+        ...state,
+        currrentTeam: action.team
+      }
+
     default:
       return state
   }
