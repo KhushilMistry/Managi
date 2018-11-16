@@ -8,6 +8,7 @@ import './home.scss'
 import { logout } from '../../actions'
 import Detail from '../Detail'
 import Team from '../Team'
+import Profile from '../Profile'
 
 class Home extends Component {
 
@@ -43,6 +44,7 @@ class Home extends Component {
             <div className="horizontalContainer">
               <Switch>
                 <Route exact path="/dashboard" component={Detail} />
+                <Route exact path='/dashboard/profile/:profile' component={Profile} />
                 <Route path='/dashboard/:team' component={Team} />
               </Switch>
             </div>

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Tab, Tabs, Button, Modal } from 'react-bootstrap'
-import { Redirect } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import './team.scss'
 import { fetchTeam, addTeamMember } from '../../actions'
 var _ = require('lodash');
@@ -119,7 +119,7 @@ class Team extends Component {
   }
 
   render() {
-    if(!this.props.user.teams || !this.props.user.teams.includes(this.props.match.params.team)){
+    if (!this.props.user.teams || !this.props.user.teams.includes(this.props.match.params.team)) {
       return <Redirect to="/dashboard" />
     }
     return (
@@ -141,8 +141,10 @@ class Team extends Component {
                       _.map(this.props.allUsers, (user, key) => {
                         if (user.teams.includes(this.props.currentTeam.name)) {
                           return <div className="teamTile" key={key}>
-                            <p><b>Name</b> : {user.Name}</p>
-                            <p className="teamDetails"><b>Email</b> : {user.Email}</p>
+                            <Link to={`/dashboard/profile/${user.id}`} className="teamLink">
+                              <p><b>Name</b> : {user.Name}</p>
+                              <p className="teamDetails"><b>Email</b> : {user.Email}</p>
+                            </Link>
                           </div>
                         }
                       })
