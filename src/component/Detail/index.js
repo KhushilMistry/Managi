@@ -39,7 +39,13 @@ class Detail extends Component {
       let team = {
         users: [],
         name: this.state.name,
-        details: this.state.details
+        details: this.state.details,
+        budget: {
+          total: 0,
+          spent: 0,
+          remaining: 0,
+          exp: []
+        }
       };
       let user = this.props.user;
       if (user.teams) {

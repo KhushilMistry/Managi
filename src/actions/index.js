@@ -161,3 +161,21 @@ export const addTeamMember = (user, currentTeam) => {
     });
   }
 }
+
+export const addBudget = (team) => {
+  return (dispatch) => {
+    dispatch({ type: 'LOADING_START' })
+    databaseRef.database().ref().child('Teams').child(team.name).set(team)
+    let allTeams = []
+    databaseRef.database().ref().child('Teams').once('value').then(function (snap) {
+      const allTeamValue = snap.val()
+      _.forEach(allTeamValue, element => {
+        allTeams.push(element)
+      });
+    }).then(() => {
+      dispatch({ type: 'ADD_CURRENT_TEAM', team: team })
+      dispatch({ type: 'ADD_TEAM', teams: allTeams })
+      dispatch({ type: 'LOADING_END' })
+    });
+  }
+}

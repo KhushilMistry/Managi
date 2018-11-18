@@ -4,7 +4,8 @@ import { connect } from 'react-redux'
 import { Tab, Tabs, Button, Modal } from 'react-bootstrap'
 import { Link, Redirect } from 'react-router-dom'
 import './team.scss'
-import { fetchTeam, addTeamMember } from '../../actions'
+import { fetchTeam, addTeamMember, addBudget } from '../../actions'
+import Progress from 'react-progressbar'
 var _ = require('lodash');
 
 class Team extends Component {
@@ -15,7 +16,13 @@ class Team extends Component {
       userModal: false,
       email: '',
       error: '',
-      leaveModal: false
+      leaveModal: false,
+      expModal: false,
+      budgetModal: false,
+      amount: 0,
+      title: '',
+      note: '',
+      expAmount: 0
     }
   }
 
@@ -118,7 +125,94 @@ class Team extends Component {
     })
   }
 
+  handleExpClose = () => {
+    this.setState({
+      expModal: false,
+      error: '',
+      note: '',
+      title: '',
+      expAmount: 0
+    })
+  }
+
+  openExpModal = () => {
+    this.setState({
+      expModal: true
+    })
+  }
+
+  addExp = () => {
+    if (!this.state.expAmount || this.state.expAmount <= 0 || this.state.note === '' || this.state.title === '') {
+      this.setState({
+        error: "Fill all the details."
+      })
+    }
+    else {
+      if (!this.props.currentTeam.budget || !this.props.currentTeam.budget.total || this.state.expAmount > this.props.currentTeam.budget.remaining) {
+        this.setState({
+          error: "You don't have sufficient budget."
+        })
+      }
+      else {
+        let budget = this.props.currentTeam.budget;
+        budget.remaining = Number(budget.remaining) - Number(this.state.expAmount);
+        budget.spent = Number(budget.spent) + Number(this.state.expAmount);
+        budget.exp = this.props.currentTeam.budget.exp || [];
+        let val = {
+          amount: Number(this.state.expAmount),
+          title: this.state.title,
+          note: this.state.note
+        }
+        budget.exp.push(val);
+        let updateBudgetTeam = this.props.currentTeam;
+        updateBudgetTeam.budget = budget;
+        this.props.addBudget(updateBudgetTeam);
+        this.handleExpClose();
+      }
+    }
+  }
+
+  openBudgetModal = () => {
+    this.setState({
+      budgetModal: true
+    })
+  }
+
+  handleBudgetClose = () => {
+    this.setState({
+      budgetModal: false,
+      error: '',
+      amount: 0
+    })
+  }
+
+  editBudgetAmount = () => {
+    if (this.state.amount <= 0) {
+      this.setState({
+        error: "Fill right details."
+      })
+    }
+    else {
+      if (this.props.currentTeam.budget && this.props.currentTeam.budget.spent >= this.state.amount) {
+        this.setState({
+          error: "You don't have sufficient budget."
+        })
+      }
+      else {
+        let budget = this.props.currentTeam.budget || {};
+        budget.total = Number(this.state.amount);
+        budget.remaining =  Number(this.props.currentTeam.budget && this.props.currentTeam.budget.spent ? this.state.amount - this.props.currentTeam.budget.spent : this.state.amount);
+        budget.spent =  budget.spent || 0;
+        console.log(this.state.amount, budget)
+        let updateBudgetTeam = this.props.currentTeam;
+        updateBudgetTeam.budget = budget;
+        this.props.addBudget(updateBudgetTeam);
+      }
+    }
+  }
+
   render() {
+
     if (!this.props.user.teams || !this.props.user.teams.includes(this.props.match.params.team)) {
       return <Redirect to="/dashboard" />
     }
@@ -189,7 +283,72 @@ class Team extends Component {
             Tab 3 content
           </Tab>
           <Tab className="tabName" eventKey={4} title="Budget Tracker">
-            Tab 3 content
+            <h3><b>Total Budget</b> : {this.props.currentTeam.budget ? this.props.currentTeam.budget.total : 0} Rs</h3>
+            <h3><b>Remaining Budget</b> : {this.props.currentTeam.budget ? this.props.currentTeam.budget.remaining : 0} Rs</h3>
+            <h3><b>Spent Budget</b> : {this.props.currentTeam.budget ? this.props.currentTeam.budget.spent : 0} Rs</h3>
+            <Progress completed={this.props.currentTeam.budget ? this.props.currentTeam.budget.spent / this.props.currentTeam.budget.total * 100 : 0} color={'#5bc0de'} />
+            <Button bsStyle="primary" className="userButtons" onClick={this.openBudgetModal}>Edit Budget</Button>
+            <h3>Expenditure</h3>
+            <hr />
+            <Button bsStyle="primary" className="userButtons" onClick={this.openExpModal}>Add Expenditure</Button>
+            <table>
+              <tr>
+                <th>No.</th>
+                <th>Title</th>
+                <th>Amount (in Rs.)</th>
+                <th>Note</th>
+              </tr>
+              {
+                this.props.currentTeam.budget && this.props.currentTeam.budget.exp && _.map(this.props.currentTeam.budget.exp, (element, key) => {
+                  return <tr>
+                    <td>{key + 1}</td>
+                    <td>{element.title}</td>
+                    <td>{element.amount}</td>
+                    <td>{element.note}</td>
+                  </tr>
+                })
+              }
+            </table>
+            <Modal show={this.state.expModal} onHide={this.handleExpClose}>
+              <Modal.Header closeButton>
+                <Modal.Title>Add Expenditure</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <input className="login-input" type="text" placeholder="Title" name="title"
+                  onChange={(event) => this.changeState(event)}
+                  value={this.state.title}
+                />
+                <input className="login-input" type="number" placeholder="Amount" name="expAmount"
+                  onChange={(event) => this.changeState(event)}
+                  value={this.state.expAmount}
+                />
+                <input className="login-input" type="text" placeholder="Note" name="note"
+                  onChange={(event) => this.changeState(event)}
+                  value={this.state.note}
+                />
+                <p class="errorMsg">{this.state.error}</p>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button onClick={this.handleExpClose}>Close</Button>
+                <Button bsStyle="primary" onClick={this.addExp}>Add</Button>
+              </Modal.Footer>
+            </Modal>
+            <Modal show={this.state.budgetModal} onHide={this.handleBudgetClose}>
+              <Modal.Header closeButton>
+                <Modal.Title>Edit Budget</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <input className="login-input" type="number" placeholder="Amount" name="amount"
+                  onChange={(event) => this.changeState(event)}
+                  value={this.state.amount}
+                />
+                <p class="errorMsg">{this.state.error}</p>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button onClick={this.handleBudgetClose}>Close</Button>
+                <Button bsStyle="primary" onClick={this.editBudgetAmount}>Edit</Button>
+              </Modal.Footer>
+            </Modal>
           </Tab>
         </Tabs>
       </div>
@@ -207,7 +366,8 @@ const mapStateToProps = ({ loginStates }) => ({
 
 const mapDispatchToProps = dispatch => bindActionCreators({
   fetchTeam,
-  addTeamMember
+  addTeamMember,
+  addBudget
 }, dispatch)
 
 export default connect(
