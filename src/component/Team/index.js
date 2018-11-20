@@ -3,10 +3,11 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Tab, Tabs, Button, Modal } from 'react-bootstrap'
 import { Link, Redirect } from 'react-router-dom'
+import Board from 'react-trello'
 import './team.scss'
 import { fetchTeam, addTeamMember, addBudget } from '../../actions'
 import Progress from 'react-progressbar'
-var _ = require('lodash');
+var _ = require('lodash')
 
 class Team extends Component {
 
@@ -22,7 +23,9 @@ class Team extends Component {
       amount: 0,
       title: '',
       note: '',
-      expAmount: 0
+      expAmount: 0,
+      cardAddModal: false,
+      laneTitle: ''
     }
   }
 
@@ -201,8 +204,8 @@ class Team extends Component {
       else {
         let budget = this.props.currentTeam.budget || {};
         budget.total = Number(this.state.amount);
-        budget.remaining =  Number(this.props.currentTeam.budget && this.props.currentTeam.budget.spent ? this.state.amount - this.props.currentTeam.budget.spent : this.state.amount);
-        budget.spent =  budget.spent || 0;
+        budget.remaining = Number(this.props.currentTeam.budget && this.props.currentTeam.budget.spent ? this.state.amount - this.props.currentTeam.budget.spent : this.state.amount);
+        budget.spent = budget.spent || 0;
         console.log(this.state.amount, budget)
         let updateBudgetTeam = this.props.currentTeam;
         updateBudgetTeam.budget = budget;
@@ -211,8 +214,44 @@ class Team extends Component {
     }
   }
 
+  onDataChange = (newData) => {
+    if(this.props.currentTeam.kanban && !_.isEqual(newData, this.props.currentTeam.kanban)){
+      let currentTeam = this.props.currentTeam;
+      currentTeam.kanban = newData
+      this.props.addBudget(currentTeam)
+    }
+    else if(!this.props.currentTeam.kanban){
+      let currentTeam = this.props.currentTeam;
+      currentTeam.kanban = newData
+      this.props.addBudget(currentTeam)
+    }
+  }
+
+  handleLaneDragEnd = (laneId, newPosition) => {
+    let currentTeam = this.props.currentTeam;
+    let currentCanban = currentTeam.kanban;
+    let swapElm = currentCanban.lanes[laneId]
+    currentCanban.lanes[laneId] = currentCanban.lanes[newPosition]
+    currentCanban.lanes[newPosition] = swapElm
+    currentTeam.kanban = currentCanban
+    this.props.addBudget(currentTeam)
+  }
+
+
   render() {
 
+    let dummyData = {
+      lanes: []
+    };
+
+    const board = this.props.currentTeam.kanban ? this.props.currentTeam.kanban : dummyData;
+
+    _.filter(board.lanes, element => {
+      if(!element.cards){
+        element.cards = []
+      }
+      return element
+    })
     if (!this.props.user.teams || !this.props.user.teams.includes(this.props.match.params.team)) {
       return <Redirect to="/dashboard" />
     }
@@ -255,7 +294,7 @@ class Team extends Component {
                     onChange={(event) => this.changeState(event)}
                     value={this.state.email}
                   />
-                  <p class="errorMsg">{this.state.error}</p>
+                  <p className="errorMsg">{this.state.error}</p>
                 </Modal.Body>
                 <Modal.Footer>
                   <Button onClick={this.handleClose}>Close</Button>
@@ -277,10 +316,19 @@ class Team extends Component {
             </div>
           </Tab>
           <Tab eventKey={2} title="Kanban Diagram">
-            Tab 2 content
+            <Board data={board}
+              draggable 
+              editable 
+              canAddLanes
+              onDataChange={(newdata)=>{
+                this.onDataChange(newdata)
+              }}
+              handleLaneDragEnd={(laneId, newPosition) => {
+                this.handleLaneDragEnd(laneId, newPosition)
+              }}
+              />
           </Tab>
           <Tab className="tabName" eventKey={3} title="Gantt chart">
-            Tab 3 content
           </Tab>
           <Tab className="tabName" eventKey={4} title="Budget Tracker">
             <h3><b>Total Budget</b> : {this.props.currentTeam.budget ? this.props.currentTeam.budget.total : 0} Rs</h3>
@@ -292,22 +340,24 @@ class Team extends Component {
             <hr />
             <Button bsStyle="primary" className="userButtons" onClick={this.openExpModal}>Add Expenditure</Button>
             <table>
-              <tr>
-                <th>No.</th>
-                <th>Title</th>
-                <th>Amount (in Rs.)</th>
-                <th>Note</th>
-              </tr>
-              {
-                this.props.currentTeam.budget && this.props.currentTeam.budget.exp && _.map(this.props.currentTeam.budget.exp, (element, key) => {
-                  return <tr>
-                    <td>{key + 1}</td>
-                    <td>{element.title}</td>
-                    <td>{element.amount}</td>
-                    <td>{element.note}</td>
-                  </tr>
-                })
-              }
+              <tbody>
+                <tr>
+                  <th>No.</th>
+                  <th>Title</th>
+                  <th>Amount (in Rs.)</th>
+                  <th>Note</th>
+                </tr>
+                {
+                  this.props.currentTeam.budget && this.props.currentTeam.budget.exp && _.map(this.props.currentTeam.budget.exp, (element, key) => {
+                    return <tr key={key}>
+                      <td>{key + 1}</td>
+                      <td>{element.title}</td>
+                      <td>{element.amount}</td>
+                      <td>{element.note}</td>
+                    </tr>
+                  })
+                }
+              </tbody>
             </table>
             <Modal show={this.state.expModal} onHide={this.handleExpClose}>
               <Modal.Header closeButton>
@@ -326,7 +376,7 @@ class Team extends Component {
                   onChange={(event) => this.changeState(event)}
                   value={this.state.note}
                 />
-                <p class="errorMsg">{this.state.error}</p>
+                <p className="errorMsg">{this.state.error}</p>
               </Modal.Body>
               <Modal.Footer>
                 <Button onClick={this.handleExpClose}>Close</Button>
@@ -342,7 +392,7 @@ class Team extends Component {
                   onChange={(event) => this.changeState(event)}
                   value={this.state.amount}
                 />
-                <p class="errorMsg">{this.state.error}</p>
+                <p className="errorMsg">{this.state.error}</p>
               </Modal.Body>
               <Modal.Footer>
                 <Button onClick={this.handleBudgetClose}>Close</Button>
