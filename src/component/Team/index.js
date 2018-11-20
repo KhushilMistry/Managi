@@ -25,7 +25,9 @@ class Team extends Component {
       note: '',
       expAmount: 0,
       cardAddModal: false,
-      laneTitle: ''
+      laneTitle: '',
+      deleteLane: '',
+      deleteLaneModal: false
     }
   }
 
@@ -215,12 +217,12 @@ class Team extends Component {
   }
 
   onDataChange = (newData) => {
-    if(this.props.currentTeam.kanban && !_.isEqual(newData, this.props.currentTeam.kanban)){
+    if (this.props.currentTeam.kanban && !_.isEqual(newData, this.props.currentTeam.kanban)) {
       let currentTeam = this.props.currentTeam;
       currentTeam.kanban = newData
       this.props.addBudget(currentTeam)
     }
-    else if(!this.props.currentTeam.kanban){
+    else if (!this.props.currentTeam.kanban) {
       let currentTeam = this.props.currentTeam;
       currentTeam.kanban = newData
       this.props.addBudget(currentTeam)
@@ -237,6 +239,48 @@ class Team extends Component {
     this.props.addBudget(currentTeam)
   }
 
+  deleteLane = () => {
+    if (this.state.deleteLane === '') {
+      this.setState({
+        error: 'Please fill all the details.'
+      })
+    }
+    else if (!this.props.currentTeam.kanban || !this.props.currentTeam.kanban.lanes) {
+      this.setState({
+        error: 'No Lane Exists.'
+      })
+    }
+    else if (this.props.currentTeam.kanban.lanes) {
+      let currentTeam = this.props.currentTeam
+      let lanes = _.filter(currentTeam.kanban.lanes, (element, number) => {
+        return element.title !== this.state.deleteLane
+      })
+      if (lanes.length === currentTeam.kanban.lanes.length) {
+        this.setState({
+          error: 'No such lane exists.'
+        })
+      }
+      else {
+        currentTeam.kanban.lanes = lanes;
+        this.props.addBudget(currentTeam)
+      }
+    }
+  }
+
+  handleLaneClose = () => {
+    this.setState({
+      deleteLane: '',
+      error: '',
+      deleteLaneModal: false
+    })
+  }
+
+  handleLaneOpen = () => {
+    this.setState({
+      deleteLaneModal: true
+    })
+  }
+
 
   render() {
 
@@ -247,7 +291,7 @@ class Team extends Component {
     const board = this.props.currentTeam.kanban ? this.props.currentTeam.kanban : dummyData;
 
     _.filter(board.lanes, element => {
-      if(!element.cards){
+      if (!element.cards) {
         element.cards = []
       }
       return element
@@ -316,17 +360,18 @@ class Team extends Component {
             </div>
           </Tab>
           <Tab eventKey={2} title="Kanban Diagram">
+            <Button bsStyle="danger" className="laneButton" onClick={this.handleLaneOpen}>Delete Lane</Button>
             <Board data={board}
-              draggable 
-              editable 
+              draggable
+              editable
               canAddLanes
-              onDataChange={(newdata)=>{
+              onDataChange={(newdata) => {
                 this.onDataChange(newdata)
               }}
               handleLaneDragEnd={(laneId, newPosition) => {
                 this.handleLaneDragEnd(laneId, newPosition)
               }}
-              />
+            />
           </Tab>
           <Tab className="tabName" eventKey={3} title="Gantt chart">
           </Tab>
@@ -397,6 +442,22 @@ class Team extends Component {
               <Modal.Footer>
                 <Button onClick={this.handleBudgetClose}>Close</Button>
                 <Button bsStyle="primary" onClick={this.editBudgetAmount}>Edit</Button>
+              </Modal.Footer>
+            </Modal>
+            <Modal show={this.state.deleteLaneModal} onHide={this.handleLaneClose}>
+              <Modal.Header closeButton>
+                <Modal.Title>Delete Lane</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <input className="login-input" type="text" placeholder="Title" name="deleteLane"
+                  onChange={(event) => this.changeState(event)}
+                  value={this.state.deleteLane}
+                />
+                <p className="errorMsg">{this.state.error}</p>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button onClick={this.handleLaneClose}>Close</Button>
+                <Button bsStyle="danger" onClick={this.deleteLane}>Delete</Button>
               </Modal.Footer>
             </Modal>
           </Tab>
