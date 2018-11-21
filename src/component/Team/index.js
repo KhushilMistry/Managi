@@ -4,11 +4,11 @@ import { connect } from 'react-redux'
 import { Tab, Tabs, Button, Modal } from 'react-bootstrap'
 import { Link, Redirect } from 'react-router-dom'
 import Board from 'react-trello'
+import moment from 'moment'
+import ReactGantt, { GanttRow } from 'react-gantt'
 import './team.scss'
 import { fetchTeam, addTeamMember, addBudget } from '../../actions'
 import Progress from 'react-progressbar'
-import moment from 'moment'
-import ReactGantt, { GanttRow } from 'react-gantt'
 var _ = require('lodash')
 
 class Team extends Component {
@@ -29,7 +29,43 @@ class Team extends Component {
       cardAddModal: false,
       laneTitle: '',
       deleteLane: '',
-      deleteLaneModal: false
+      deleteLaneModal: false,
+      leftBound: {
+        hour: null,
+        date: null,
+        month: null,
+        year: null
+      },
+      rightBound: {
+        hour: null,
+        date: null,
+        month: null,
+        year: null
+      },
+      leftBoundModal: false,
+      rightBoundModal: false,
+      ganttTaskModal: false,
+      gantTaskTitle: '',
+      state1: {
+        hour: null,
+        date: null,
+        month: null,
+        year: null
+      },
+      state2: {
+        hour: null,
+        date: null,
+        month: null,
+        year: null
+      },
+      state3: {
+        hour: null,
+        date: null,
+        month: null,
+        year: null
+      },
+      deleteTaskModal: false,
+      deleteTaskName: ''
     }
   }
 
@@ -63,6 +99,22 @@ class Team extends Component {
     let newState = this.state
     newState[event.target.name] = event.target.value
     this.setState(newState)
+  }
+
+  changeBoundState = (event) => {
+    if (Number(event.target.value) > 0) {
+      let newState = this.state
+      if (event.target.name.includes('rightBound')) {
+        let val = event.target.name.split('.')
+        newState['rightBound'][val[1]] = Number(event.target.value)
+        this.setState(newState)
+      }
+      if (event.target.name.includes('leftBound')) {
+        let val = event.target.name.split('.')
+        newState['leftBound'][val[1]] = Number(event.target.value)
+        this.setState(newState)
+      }
+    }
   }
 
   addTeam = () => {
@@ -295,12 +347,190 @@ class Team extends Component {
     })
   }
 
+  changeLeftBound = () => {
+    if (this.state.leftBound.hour > 0 && this.state.leftBound.hour < 24 &&
+      this.state.leftBound.date > 0 && this.state.leftBound.hour <= 31 &&
+      this.state.leftBound.month > 0 && this.state.leftBound.month <= 12 &&
+      this.state.leftBound.year > 0) {
+      let currentTeam = this.props.currentTeam
+      currentTeam.gantt = currentTeam.gantt || {}
+      currentTeam.gantt.leftBound = this.state.leftBound
+      this.props.addBudget(currentTeam)
+    }
+    else {
+      this.setState({
+        error: 'Fill details correctly.'
+      })
+    }
+  }
+
+  boundModalClose = () => {
+    this.setState({
+      leftBoundModal: false,
+      rightBoundModal: false,
+      error: '',
+      leftBound: {
+        hour: null,
+        month: null,
+        year: null,
+        date: null
+      },
+      rightBound: {
+        hour: null,
+        month: null,
+        year: null,
+        date: null
+      }
+    })
+  }
+
+  changeRightBound = () => {
+    if (this.state.rightBound.hour > 0 && this.state.rightBound.hour <= 24 &&
+      this.state.rightBound.date > 0 && this.state.rightBound.date <= 31 &&
+      this.state.rightBound.month > 0 && this.state.rightBound.month <= 12 &&
+      this.state.rightBound.year > 0) {
+      let currentTeam = this.props.currentTeam
+      currentTeam.gantt = currentTeam.gantt || {}
+      currentTeam.gantt.rightBound = this.state.rightBound
+      this.props.addBudget(currentTeam)
+    }
+    else {
+      this.setState({
+        error: 'Fill details correctly.'
+      })
+    }
+  }
+
+  ganttTaskModalClose = () => {
+    this.setState({
+      ganttTaskModal: false,
+      gantTaskTitle: '',
+      error: '',
+      state1: {
+        hour: null,
+        date: null,
+        month: null,
+        year: null
+      },
+      state2: {
+        hour: null,
+        date: null,
+        month: null,
+        year: null
+      },
+      state3: {
+        hour: null,
+        date: null,
+        month: null,
+        year: null
+      }
+    })
+  }
+
+  addGanttTask = () => {
+    if (this.state.state1.hour > 0 && this.state.state1.hour <= 24 &&
+      this.state.state1.date > 0 && this.state.state1.date <= 31 &&
+      this.state.state1.month > 0 && this.state.state1.month <= 12 &&
+      this.state.state1.year > 0 &&
+      this.state.state2.hour > 0 && this.state.state2.hour <= 24 &&
+      this.state.state2.date > 0 && this.state.state2.date <= 31 &&
+      this.state.state2.month > 0 && this.state.state2.month <= 12 &&
+      this.state.state2.year > 0 &&
+      this.state.state3.hour > 0 && this.state.state3.hour <= 24 &&
+      this.state.state3.date > 0 && this.state.state3.date <= 31 &&
+      this.state.state3.month > 0 && this.state.state3.month <= 12 &&
+      this.state.state3.year > 0 && this.state.gantTaskTitle !== '') {
+      let currentTeam = this.props.currentTeam
+      currentTeam.gantt = currentTeam.gantt || {}
+      currentTeam.gantt.tasks = currentTeam.gantt.tasks || []
+      let element = {
+        title: this.state.gantTaskTitle,
+        steps: [
+          { hour: this.state.state1.hour, date: this.state.state1.date, month: this.state.state1.month, year: this.state.state1.year },
+          { hour: this.state.state2.hour, date: this.state.state2.date, month: this.state.state2.month, year: this.state.state2.year },
+          { hour: this.state.state3.hour, date: this.state.state3.date, month: this.state.state3.month, year: this.state.state3.year }
+        ]
+      }
+      currentTeam.gantt.tasks.push(element)
+      this.props.addBudget(currentTeam)
+    }
+    else {
+      this.setState({
+        error: 'Fill details correctly.'
+      })
+    }
+  }
+
+  changeTaskState = (state, event) => {
+    if (Number(event.target.value) > 0) {
+      let newState = this.state
+      newState[state][event.target.name] = Number(event.target.value)
+      this.setState(newState)
+    }
+  }
+
+  deleteTask = () => {
+    if (!this.props.currentTeam.gantt && !this.props.currentTeam.gantt.tasks && this.state.deleteTaskName !== '') {
+      this.setState({
+        error: 'Fill all the details or No Task exists.'
+      })
+    }
+    else {
+      let currentTeam = this.props.currentTeam
+      let newTasks = _.filter(currentTeam.gantt.tasks, element => {
+        return element.title !== this.state.deleteTaskName
+      })
+      if (newTasks.length === currentTeam.gantt.tasks.length) {
+        this.setState({
+          error: 'No such Task exists.'
+        })
+      }
+      else {
+        currentTeam.gantt.tasks = newTasks
+        this.props.addBudget(currentTeam)
+      }
+    }
+  }
+
+  deleteTaskClose = () => {
+    this.setState({
+      error: '',
+      deleteTaskModal: false
+    })
+  }
+
 
   render() {
 
     let dummyData = {
       lanes: []
     };
+
+    const taskContainer = {
+      myTasks: {
+        title: 'My Tasks',
+        steps: [
+          {
+            name: 'Task Phase One',
+            color: '#337ab7'
+          },
+          {
+            name: 'Task Phase Two',
+            color: '#d9534f'
+          }
+        ]
+      }
+    }
+
+    const bound = {
+      hour: 0,
+      month: 0,
+      year: 0,
+      date: 0
+    }
+
+    const leftBound = this.props.currentTeam.gantt && this.props.currentTeam.gantt.leftBound ? this.props.currentTeam.gantt.leftBound : bound;
+    const rightBound = this.props.currentTeam.gantt && this.props.currentTeam.gantt.rightBound ? this.props.currentTeam.gantt.rightBound : bound;
 
     const board = this.props.currentTeam.kanban ? this.props.currentTeam.kanban : dummyData;
 
@@ -313,6 +543,7 @@ class Team extends Component {
     if (!this.props.user.teams || !this.props.user.teams.includes(this.props.match.params.team)) {
       return <Redirect to="/dashboard" />
     }
+
     return (
       <div>
         <h3 className="teamNameHeading">{this.props.match.params.team}</h3>
@@ -387,45 +618,188 @@ class Team extends Component {
               }}
             />
           </Tab>
-          <Tab className="tabName ganttChart" eventKey={3} title="Gantt chart">
+          <Tab className="tabName" eventKey={3} title="Gantt chart">
+            <Button bsStyle="primary" className="laneButton" onClick={() => {
+              this.setState({
+                leftBoundModal: true
+              })
+            }}>Change Left Bound</Button>
+            <Button bsStyle="primary" className="laneButton" onClick={() => {
+              this.setState({
+                rightBoundModal: true
+              })
+            }}>Change Right Bound</Button>
+            <Button bsStyle="primary" className="laneButton" onClick={() => {
+              this.setState({
+                ganttTaskModal: true
+              })
+            }}>Add Task</Button>
+            <Button bsStyle="danger" className="laneButton" onClick={() => {
+              this.setState({
+                deleteTaskModal: true
+              })
+            }}>Delete TasK</Button>
             <ReactGantt
-              templates={{
-                myTasks: {
-                  title: 'My Tasks',
-                  steps: [
-                    {
-                      name: 'Task Phase One',
-                      color: '#337ab7'
-                    },
-                    {
-                      name: 'Task Phase Two',
-                      color: '#d9534f'
-                    }
-                  ]
-                }
+              style={{
+                marginTop: '10px'
               }}
-              leftBound={moment().set({ hour: 0, date: 30, month: 5, year: 2016 }).toDate()}
-              rightBound={moment().set({ hour: 0, date: 29, month: 8, year: 2016 }).toDate()}
+              templates={taskContainer}
+              leftBound={moment().set({ hour: leftBound.hour, date: leftBound.date, month: leftBound.month, year: leftBound.year }).toDate()}
+              rightBound={moment().set({ hour: rightBound.hour, date: rightBound.date, month: rightBound.month, year: rightBound.year }).toDate()}
             >
-              <GanttRow
-                title="Task 1"
-                templateName="myTasks"
-                steps={[
-                  moment().set({ hour: 0, date: 1, month: 6, year: 2016 }).toDate(),
-                  moment().set({ hour: 0, date: 4, month: 8, year: 2016 }).toDate(),
-                  moment().set({ hour: 0, date: 17, month: 8, year: 2016 }).toDate()
-                ]}
-              />
-              <GanttRow
-                title="Task 1"
-                templateName="myTasks"
-                steps={[
-                  moment().set({ hour: 0, date: 27, month: 2, year: 2016 }).toDate(),
-                  moment().set({ hour: 0, date: 9, month: 7, year: 2016 }).toDate(),
-                  moment().set({ hour: 0, date: 22, month: 7, year: 2016 }).toDate()
-                ]}
-              />
+              {this.props.currentTeam.gantt &&
+                _.map(this.props.currentTeam.gantt.tasks || [], element => {
+                  return <GanttRow
+                    title={element.title}
+                    templateName="myTasks"
+                    steps={[
+                      moment().set({ hour: element.steps[0].hour, date: element.steps[0].date, month: element.steps[0].month, year: element.steps[0].year }).toDate(),
+                      moment().set({ hour: element.steps[1].hour, date: element.steps[1].date, month: element.steps[1].month, year: element.steps[1].year }).toDate(),
+                      moment().set({ hour: element.steps[2].hour, date: element.steps[2].date, month: element.steps[2].month, year: element.steps[2].year }).toDate()
+                    ]}
+                  />
+                })
+              }
             </ReactGantt>
+            <Modal show={this.state.leftBoundModal} onHide={this.boundModalClose}>
+              <Modal.Header closeButton>
+                <Modal.Title>Change Left Bound</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <input className="login-input" type="number" placeholder="Hour" name="leftBound.hour"
+                  onChange={(event) => this.changeBoundState(event)}
+                  value={this.state.leftBound.hour}
+                />
+                <input className="login-input" type="number" placeholder="Date" name="leftBound.date"
+                  onChange={(event) => this.changeBoundState(event)}
+                  value={this.state.leftBound.date}
+                />
+                <input className="login-input" type="number" placeholder="Month" name="leftBound.month"
+                  onChange={(event) => this.changeBoundState(event)}
+                  value={this.state.rightBound.month}
+                />
+                <input className="login-input" type="number" placeholder="Year" name="leftBound.year"
+                  onChange={(event) => this.changeBoundState(event)}
+                  value={this.state.leftBound.year}
+                />
+                <p className="errorMsg">{this.state.error}</p>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button onClick={this.boundModalClose}>Close</Button>
+                <Button bsStyle="primary" onClick={this.changeLeftBound}>Change</Button>
+              </Modal.Footer>
+            </Modal>
+            <Modal show={this.state.rightBoundModal} onHide={this.boundModalClose}>
+              <Modal.Header closeButton>
+                <Modal.Title>Change Right Bound</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <input className="login-input" type="number" placeholder="Hour" name="rightBound.hour"
+                  onChange={(event) => this.changeBoundState(event)}
+                  value={this.state.rightBound.hour}
+                />
+                <input className="login-input" type="number" placeholder="Date" name="rightBound.date"
+                  onChange={(event) => this.changeBoundState(event)}
+                  value={this.state.rightBound.date}
+                />
+                <input className="login-input" type="number" placeholder="Month" name="rightBound.month"
+                  onChange={(event) => this.changeBoundState(event)}
+                  value={this.state.rightBound.month}
+                />
+                <input className="login-input" type="number" placeholder="Year" name="rightBound.year"
+                  onChange={(event) => this.changeBoundState(event)}
+                  value={this.state.rightBound.year}
+                />
+                <p className="errorMsg">{this.state.error}</p>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button onClick={this.boundModalClose}>Close</Button>
+                <Button bsStyle="primary" onClick={this.changeRightBound}>Change</Button>
+              </Modal.Footer>
+            </Modal>
+            <Modal show={this.state.ganttTaskModal} onHide={this.ganttTaskModalClose}>
+              <Modal.Header closeButton>
+                <Modal.Title>Add Gantt Task</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <input className="login-input" type="text" placeholder="Title" name="gantTaskTitle"
+                  onChange={(event) => this.changeState(event)}
+                  value={this.state.gantTaskTitle}
+                />
+                <p>Starting of Phase 1</p>
+                <input className="login-input" type="number" placeholder="Hour" name="hour"
+                  onChange={(event) => this.changeTaskState('state1', event)}
+                  value={this.state.state1.hour}
+                />
+                <input className="login-input" type="number" placeholder="Date" name="date"
+                  onChange={(event) => this.changeTaskState('state1', event)}
+                  value={this.state.state1.date}
+                />
+                <input className="login-input" type="number" placeholder="Month" name="month"
+                  onChange={(event) => this.changeTaskState('state1', event)}
+                  value={this.state.state1.month}
+                />
+                <input className="login-input" type="number" placeholder="Year" name="year"
+                  onChange={(event) => this.changeTaskState('state1', event)}
+                  value={this.state.state1.year}
+                />
+                <p>Starting of Phase 2</p>
+                <input className="login-input" type="number" placeholder="Hour" name="hour"
+                  onChange={(event) => this.changeTaskState('state2', event)}
+                  value={this.state.state2.hour}
+                />
+                <input className="login-input" type="number" placeholder="Date" name="date"
+                  onChange={(event) => this.changeTaskState('state2', event)}
+                  value={this.state.state2.date}
+                />
+                <input className="login-input" type="number" placeholder="Month" name="month"
+                  onChange={(event) => this.changeTaskState('state2', event)}
+                  value={this.state.state2.month}
+                />
+                <input className="login-input" type="number" placeholder="Year" name="year"
+                  onChange={(event) => this.changeTaskState('state2', event)}
+                  value={this.state.state2.year}
+                />
+                <p>Ending of Task</p>
+                <input className="login-input" type="number" placeholder="Hour" name="hour"
+                  onChange={(event) => this.changeTaskState('state3', event)}
+                  value={this.state.state3.hour}
+                />
+                <input className="login-input" type="number" placeholder="Date" name="date"
+                  onChange={(event) => this.changeTaskState('state3', event)}
+                  value={this.state.state3.date}
+                />
+                <input className="login-input" type="text" placeholder="Month" name="month"
+                  onChange={(event) => this.changeTaskState('state3', event)}
+                  value={this.state.state3.month}
+                />
+                <input className="login-input" type="number" placeholder="Year" name="year"
+                  onChange={(event) => this.changeTaskState('state3', event)}
+                  value={this.state.state3.year}
+                />
+                <p className="errorMsg">{this.state.error}</p>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button onClick={this.ganttTaskModalClose}>Close</Button>
+                <Button bsStyle="primary" onClick={this.addGanttTask}>Add</Button>
+              </Modal.Footer>
+            </Modal>
+            <Modal show={this.state.deleteTaskModal} onHide={this.deleteTaskClose}>
+              <Modal.Header closeButton>
+                <Modal.Title>Delete Tasks</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <input className="login-input" type="text" placeholder="Task Name" name="deleteTaskName"
+                  onChange={(event) => this.changeState(event)}
+                  value={this.state.deleteTaskName}
+                />
+                <p className="errorMsg">{this.state.error}</p>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button onClick={this.deleteTaskClose}>Close</Button>
+                <Button bsStyle="danger" onClick={this.deleteTask}>Delete</Button>
+              </Modal.Footer>
+            </Modal>
           </Tab>
           <Tab className="tabName" eventKey={4} title="Budget Tracker">
             <h3><b>Total Budget</b> : {this.props.currentTeam.budget ? this.props.currentTeam.budget.total : 0} Rs</h3>
