@@ -7,6 +7,8 @@ import Board from 'react-trello'
 import './team.scss'
 import { fetchTeam, addTeamMember, addBudget } from '../../actions'
 import Progress from 'react-progressbar'
+import moment from 'moment'
+import ReactGantt, { GanttRow } from 'react-gantt'
 var _ = require('lodash')
 
 class Team extends Component {
@@ -208,12 +210,24 @@ class Team extends Component {
         budget.total = Number(this.state.amount);
         budget.remaining = Number(this.props.currentTeam.budget && this.props.currentTeam.budget.spent ? this.state.amount - this.props.currentTeam.budget.spent : this.state.amount);
         budget.spent = budget.spent || 0;
-        console.log(this.state.amount, budget)
         let updateBudgetTeam = this.props.currentTeam;
         updateBudgetTeam.budget = budget;
         this.props.addBudget(updateBudgetTeam);
       }
     }
+  }
+
+  deleteExp = (key, element) => {
+    let budget = this.props.currentTeam.budget;
+    budget.remaining = Number(budget.remaining) + Number(element.amount)
+    budget.spent = Number(budget.spent) - Number(element.amount)
+    let newBudgetExp = _.filter(budget.exp, (elem, expKey) => {
+      return key !== expKey
+    })
+    budget.exp = newBudgetExp
+    let updateBudgetTeam = this.props.currentTeam;
+    updateBudgetTeam.budget = budget;
+    this.props.addBudget(updateBudgetTeam);
   }
 
   onDataChange = (newData) => {
@@ -252,7 +266,7 @@ class Team extends Component {
     }
     else if (this.props.currentTeam.kanban.lanes) {
       let currentTeam = this.props.currentTeam
-      let lanes = _.filter(currentTeam.kanban.lanes, (element, number) => {
+      let lanes = _.filter(currentTeam.kanban.lanes, (element) => {
         return element.title !== this.state.deleteLane
       })
       if (lanes.length === currentTeam.kanban.lanes.length) {
@@ -373,7 +387,45 @@ class Team extends Component {
               }}
             />
           </Tab>
-          <Tab className="tabName" eventKey={3} title="Gantt chart">
+          <Tab className="tabName ganttChart" eventKey={3} title="Gantt chart">
+            <ReactGantt
+              templates={{
+                myTasks: {
+                  title: 'My Tasks',
+                  steps: [
+                    {
+                      name: 'Task Phase One',
+                      color: '#337ab7'
+                    },
+                    {
+                      name: 'Task Phase Two',
+                      color: '#d9534f'
+                    }
+                  ]
+                }
+              }}
+              leftBound={moment().set({ hour: 0, date: 30, month: 5, year: 2016 }).toDate()}
+              rightBound={moment().set({ hour: 0, date: 29, month: 8, year: 2016 }).toDate()}
+            >
+              <GanttRow
+                title="Task 1"
+                templateName="myTasks"
+                steps={[
+                  moment().set({ hour: 0, date: 1, month: 6, year: 2016 }).toDate(),
+                  moment().set({ hour: 0, date: 4, month: 8, year: 2016 }).toDate(),
+                  moment().set({ hour: 0, date: 17, month: 8, year: 2016 }).toDate()
+                ]}
+              />
+              <GanttRow
+                title="Task 1"
+                templateName="myTasks"
+                steps={[
+                  moment().set({ hour: 0, date: 27, month: 2, year: 2016 }).toDate(),
+                  moment().set({ hour: 0, date: 9, month: 7, year: 2016 }).toDate(),
+                  moment().set({ hour: 0, date: 22, month: 7, year: 2016 }).toDate()
+                ]}
+              />
+            </ReactGantt>
           </Tab>
           <Tab className="tabName" eventKey={4} title="Budget Tracker">
             <h3><b>Total Budget</b> : {this.props.currentTeam.budget ? this.props.currentTeam.budget.total : 0} Rs</h3>
@@ -391,6 +443,7 @@ class Team extends Component {
                   <th>Title</th>
                   <th>Amount (in Rs.)</th>
                   <th>Note</th>
+                  <th>Delete</th>
                 </tr>
                 {
                   this.props.currentTeam.budget && this.props.currentTeam.budget.exp && _.map(this.props.currentTeam.budget.exp, (element, key) => {
@@ -399,6 +452,9 @@ class Team extends Component {
                       <td>{element.title}</td>
                       <td>{element.amount}</td>
                       <td>{element.note}</td>
+                      <td>
+                        <Button bsStyle="danger" onClick={() => { this.deleteExp(key, element) }}>Delete</Button>
+                      </td>
                     </tr>
                   })
                 }

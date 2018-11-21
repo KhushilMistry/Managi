@@ -34,20 +34,18 @@ class Home extends Component {
               </Nav>
             </Navbar.Collapse>
           </Navbar>
-          <div className="divContainer">
-            <div className="horizontalNav">
-              <Link to='/dashboard' className="horizontalLink">
-                <Glyphicon glyph="home" className="iconCenter" />
-                <p>Dashboard</p>
-              </Link>
-            </div>
-            <div className="horizontalContainer">
-              <Switch>
-                <Route exact path="/dashboard" component={Detail} />
-                <Route exact path='/dashboard/profile/:profile' component={Profile} />
-                <Route path='/dashboard/:team' component={Team} />
-              </Switch>
-            </div>
+          <div className="horizontalNav">
+            <Link to='/dashboard' className="horizontalLink">
+              <Glyphicon glyph="home" className="iconCenter" />
+              <p>Dashboard</p>
+            </Link>
+          </div>
+          <div className="horizontalContainer">
+            <Switch>
+              <Route exact path="/dashboard" component={Detail} />
+              <Route exact path='/dashboard/profile/:profile' component={Profile} />
+              <Route path='/dashboard/:team' component={Team} />
+            </Switch>
           </div>
         </div>
     )
