@@ -10,7 +10,7 @@
 <li>Gantt Chart</li>
 </ul>
 
-<p>We will add following functionality in the future:</p>
+<p>We will add following functionality in the future :</p>
 
 <ul>
 <li>Admin Utilities</li>
@@ -19,7 +19,8 @@
 <li>Calender Functionalities</li>
 </ul>
 
-<p>You can run the app with following commands (You need to have Node@8.92 or above and yarn installed in your machine):</p>
+<p>You can run the app with following commands (You need to have Node@8.92 or above and yarn installed in your machine)</p>
+
 ```
 git clone https://github.com/KhushilMistry/Managi.git
 cd Managi
