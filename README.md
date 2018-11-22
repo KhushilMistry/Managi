@@ -24,6 +24,6 @@
 ```
 git clone https://github.com/KhushilMistry/Managi.git
 cd Managi
-yarn and yarn start
+yarn && yarn start
 ```
 
